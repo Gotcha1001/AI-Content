@@ -5,7 +5,7 @@ export default [
     category: "Music",
     icon: "https://cdn-icons-png.flaticon.com/128/3659/3659784.png",
     aiPrompt:
-      "Write song lyrics in the specified genre, incorporating the given theme and mood. Include verses, chorus, and bridge structure. Consider the emotional impact and musical flow.",
+      "Write song lyrics in the specified genre, incorporating the given theme and mood. Include verses, chorus, and bridge structure. Consider the emotional impact and musical flow. Add emoji icons in places for some color.",
     slug: "generate-lyrics",
     form: [
       {
@@ -121,6 +121,126 @@ export default [
       },
     ],
   },
+  {
+    name: "Teach Lesson Plans Generator",
+    desc: "Generate detailed lesson plans for various subjects, topics, and grade levels.",
+    category: "Education",
+    icon: "https://cdn-icons-png.flaticon.com/128/3067/3067368.png",
+    aiPrompt:
+      "Generate a lesson plan for the given subject, grade level, and topic. Include learning objectives, teaching methods, resources, and relevant links.",
+    slug: "teach-lesson-plans-generator",
+    form: [
+      {
+        label: "Select subject",
+        field: "dropdown",
+        name: "subject",
+        options: [
+          "Math",
+          "Science",
+          "History",
+          "English",
+          "Geography",
+          "Art",
+          "Physical Education",
+          "Music",
+        ],
+        required: true,
+      },
+      {
+        label: "Select grade level",
+        field: "dropdown",
+        name: "gradeLevel",
+        options: ["K-5", "6-8", "9-12", "College", "Adult Education"],
+        required: true,
+      },
+      {
+        label: "Enter lesson topic",
+        field: "input",
+        name: "topic",
+        required: true,
+      },
+      {
+        label: "Select teaching method",
+        field: "dropdown",
+        name: "teachingMethod",
+        options: [
+          "Lecture",
+          "Group Discussion",
+          "Project-Based Learning",
+          "Hands-on Activities",
+          "Video Demonstration",
+          "Field Trip",
+        ],
+        required: true,
+      },
+      {
+        label: "Enter resources or links (optional)",
+        field: "textarea",
+        name: "resources",
+      },
+    ],
+  },
+  {
+    name: "Minister Sermon Generator",
+    desc: "Generate a sermon message based on a given topic, including Bible verses and a step-by-step walkthrough.",
+    category: "Religion",
+    icon: "https://cdn-icons-png.flaticon.com/128/3246/3246983.png",
+    aiPrompt:
+      "Generate a sermon message for the given topic. Provide a step-by-step outline, relevant Bible verses, and explanations for each section of the sermon.",
+    slug: "minister-sermon-generator",
+    form: [
+      {
+        label: "Select sermon theme",
+        field: "dropdown",
+        name: "sermonTheme",
+        options: [
+          "Hope",
+          "Faith",
+          "Love",
+          "Forgiveness",
+          "Salvation",
+          "Repentance",
+          "Grace",
+          "Humility",
+          "Obedience",
+          "Wisdom",
+        ],
+        required: true,
+      },
+      {
+        label: "Enter sermon topic",
+        field: "input",
+        name: "sermonTopic",
+        required: true,
+      },
+      {
+        label: "Select Bible version",
+        field: "dropdown",
+        name: "bibleVersion",
+        options: ["KJV", "NIV", "ESV", "NASB", "NKJV", "NLT", "RSV"],
+        required: true,
+      },
+      {
+        label: "Select sermon structure",
+        field: "dropdown",
+        name: "sermonStructure",
+        options: [
+          "Expository",
+          "Topical",
+          "Narrative",
+          "Biographical",
+          "Thematic",
+        ],
+        required: true,
+      },
+      {
+        label: "Enter Bible verses (optional)",
+        field: "textarea",
+        name: "bibleVerses",
+      },
+    ],
+  },
+
   {
     name: "Band Bio Generator",
     desc: "Create professional band biographies for promotional materials.",
