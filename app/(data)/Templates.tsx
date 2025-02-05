@@ -1,5 +1,62 @@
 export default [
   {
+    name: "Court Case Strategy & Argument Builder",
+    desc: "Analyze your legal case, generate strong counterarguments, and assess possible outcomes using a mathematical scoring system.",
+    category: "Legal & Dispute Resolution",
+    icon: "https://cdn-icons-png.flaticon.com/128/2907/2907253.png",
+    aiPrompt:
+      "Analyze the given court case details, identifying strong arguments to counter the opposition’s claims. Develop a structured legal strategy based on legal precedents, case law, and logical reasoning. Construct a **probability-weighted outcome table**, assigning scores to different strategies based on legal strength, evidential backing, and opposition weaknesses. Evaluate: \n1) **Legal Strength** (0-10), \n2) **Evidential Support** (0-10), \n3) **Counterargument Effectiveness** (0-10), \n4) **Risk Factors** (0-10), and \n5) **Likelihood of Success** (percentage). \n\nProvide a **final recommendation** based on the best-scoring strategy, highlighting the strongest legal points and key weaknesses in the opposition’s case.",
+    slug: "court-case-strategy",
+    form: [
+      {
+        label: "Describe Your Court Case",
+        field: "textarea",
+        name: "caseDetails",
+        required: true,
+      },
+      {
+        label: "Type of Legal Dispute",
+        field: "dropdown",
+        name: "disputeType",
+        required: true,
+        options: [
+          "Contract Dispute",
+          "Criminal Defense",
+          "Personal Injury",
+          "Family Law (Divorce, Custody)",
+          "Intellectual Property",
+          "Employment Dispute",
+          "Landlord-Tenant",
+          "Defamation",
+          "Other",
+        ],
+      },
+      {
+        label: "Describe the Opposition’s Arguments",
+        field: "textarea",
+        name: "oppositionArguments",
+        required: true,
+      },
+      {
+        label: "Key Evidence You Have",
+        field: "textarea",
+        name: "yourEvidence",
+      },
+      {
+        label: "Key Weaknesses of Opposition",
+        field: "textarea",
+        name: "oppositionWeaknesses",
+      },
+      {
+        label: "Desired Outcome (Settlement, Dismissal, Compensation, etc.)",
+        field: "input",
+        name: "desiredOutcome",
+        required: true,
+      },
+    ],
+  },
+
+  {
     name: "Song Lyrics Generator",
     desc: "Create unique song lyrics based on your theme and genre preferences.",
     category: "Music",
