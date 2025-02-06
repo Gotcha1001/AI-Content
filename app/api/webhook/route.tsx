@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "../../utils/db";
 import { eq } from "drizzle-orm";
-import crypto from "crypto";
 import { Users } from "../../utils/schema";
 
-export const runtime = "edge"; // Corrected for Next.js App Router
+export const runtime = "edge"; // ✅ Corrected for Next.js App Router
 
-function validateITNSignature(
+async function md5Hash(input: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(input);
+  const hashBuffer = await crypto.subtle.digest("MD5", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function validateITNSignature(
   data: Record<string, string | undefined>,
   receivedSignature: string
-): boolean {
+): Promise<boolean> {
   const { signature, ...dataWithoutSignature } = data;
   const notifyKeys = [
     "m_payment_id",
@@ -39,15 +47,11 @@ function validateITNSignature(
   const pfParamString = notifyKeys
     .map((key) => {
       const value = dataWithoutSignature[key];
-      if (value !== undefined) {
-        return `${key}=${encodeURIComponent(String(value)).replace(
-          /%20/g,
-          "+"
-        )}`;
-      }
-      return null;
+      return value !== undefined
+        ? `${key}=${encodeURIComponent(String(value)).replace(/%20/g, "+")}`
+        : null;
     })
-    .filter((item) => item !== null)
+    .filter(Boolean)
     .join("&");
 
   const passPhrase = process.env.PAYFAST_SALT_PASSPHRASE;
@@ -55,10 +59,7 @@ function validateITNSignature(
     ? `${pfParamString}&passphrase=${encodeURIComponent(passPhrase)}`
     : pfParamString;
 
-  const calculatedSignature = crypto
-    .createHash("md5")
-    .update(finalString)
-    .digest("hex");
+  const calculatedSignature = await md5Hash(finalString);
 
   return calculatedSignature === receivedSignature;
 }
@@ -67,13 +68,16 @@ export async function POST(req: NextRequest) {
   console.log("🔵 PayFast Webhook Triggered");
 
   try {
-    const rawBodyStr = await req.text(); // Get raw request body
+    const rawBodyStr = await req.text();
     console.log("📥 Raw webhook payload:", rawBodyStr);
 
     const pfData = Object.fromEntries(new URLSearchParams(rawBodyStr));
     console.log("🔍 Parsed PayFast data:", pfData);
 
-    const isValidSignature = validateITNSignature(pfData, pfData.signature);
+    const isValidSignature = await validateITNSignature(
+      pfData,
+      pfData.signature
+    );
     console.log("✅ Signature validation result:", isValidSignature);
 
     if (!isValidSignature) {
@@ -81,7 +85,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid signature" });
     }
 
-    console.log("💰 Payment status:", pfData.payment_status);
     if (pfData.payment_status !== "COMPLETE") {
       console.log(`⚠️ Payment not complete: ${pfData.payment_status}`);
       return NextResponse.json({ message: "Payment not complete" });
@@ -89,8 +92,6 @@ export async function POST(req: NextRequest) {
 
     const userEmail = pfData.custom_str1;
     const creditsToAdd = parseInt(pfData.custom_int1);
-
-    console.log("👤 Processing update for:", { userEmail, creditsToAdd });
 
     if (!userEmail || isNaN(creditsToAdd)) {
       console.error("❌ Invalid data received:", { userEmail, creditsToAdd });
