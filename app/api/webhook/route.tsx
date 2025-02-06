@@ -1,23 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "../../utils/db";
+
 import { eq } from "drizzle-orm";
+import crypto from "crypto";
 import { Users } from "../../utils/schema";
 
-export const runtime = "edge"; // ✅ Corrected for Next.js App Router
-
-async function md5Hash(input: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(input);
-  const hashBuffer = await crypto.subtle.digest("MD5", data);
-  return Array.from(new Uint8Array(hashBuffer))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
-async function validateITNSignature(
+// Keep the signature validation function unchanged
+function validateITNSignature(
   data: Record<string, string | undefined>,
   receivedSignature: string
-): Promise<boolean> {
+): boolean {
   const { signature, ...dataWithoutSignature } = data;
   const notifyKeys = [
     "m_payment_id",
@@ -47,11 +39,15 @@ async function validateITNSignature(
   const pfParamString = notifyKeys
     .map((key) => {
       const value = dataWithoutSignature[key];
-      return value !== undefined
-        ? `${key}=${encodeURIComponent(String(value)).replace(/%20/g, "+")}`
-        : null;
+      if (value !== undefined) {
+        return `${key}=${encodeURIComponent(String(value)).replace(
+          /%20/g,
+          "+"
+        )}`;
+      }
+      return null;
     })
-    .filter(Boolean)
+    .filter((item) => item !== null)
     .join("&");
 
   const passPhrase = process.env.PAYFAST_SALT_PASSPHRASE;
@@ -59,7 +55,10 @@ async function validateITNSignature(
     ? `${pfParamString}&passphrase=${encodeURIComponent(passPhrase)}`
     : pfParamString;
 
-  const calculatedSignature = await md5Hash(finalString);
+  const calculatedSignature = crypto
+    .createHash("md5")
+    .update(finalString)
+    .digest("hex");
 
   return calculatedSignature === receivedSignature;
 }
@@ -68,16 +67,16 @@ export async function POST(req: NextRequest) {
   console.log("🔵 PayFast Webhook Triggered");
 
   try {
+    // Parse the raw body
     const rawBodyStr = await req.text();
     console.log("📥 Raw webhook payload:", rawBodyStr);
 
+    // Parse the form data
     const pfData = Object.fromEntries(new URLSearchParams(rawBodyStr));
     console.log("🔍 Parsed PayFast data:", pfData);
 
-    const isValidSignature = await validateITNSignature(
-      pfData,
-      pfData.signature
-    );
+    // Validate the signature
+    const isValidSignature = validateITNSignature(pfData, pfData.signature);
     console.log("✅ Signature validation result:", isValidSignature);
 
     if (!isValidSignature) {
@@ -85,19 +84,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid signature" });
     }
 
+    // Verify payment status
+    console.log("💰 Payment status:", pfData.payment_status);
     if (pfData.payment_status !== "COMPLETE") {
       console.log(`⚠️ Payment not complete: ${pfData.payment_status}`);
       return NextResponse.json({ message: "Payment not complete" });
     }
 
+    // Extract and validate user data
     const userEmail = pfData.custom_str1;
     const creditsToAdd = parseInt(pfData.custom_int1);
+
+    console.log("👤 Processing update for:", {
+      userEmail,
+      creditsToAdd,
+      paymentId: pfData.pf_payment_id,
+    });
 
     if (!userEmail || isNaN(creditsToAdd)) {
       console.error("❌ Invalid data received:", { userEmail, creditsToAdd });
       return NextResponse.json({ error: "Invalid data" });
     }
 
+    // Fetch current user data
     console.log("🔍 Fetching user data for:", userEmail);
     const users = await db
       .select()
@@ -113,12 +122,18 @@ export async function POST(req: NextRequest) {
     const currentCredits = user.credits ?? 0;
     const newCreditsAmount = currentCredits + creditsToAdd;
 
+    // Update user credits
     console.log("📝 Updating user credits in database...");
     const updateResult = await db
       .update(Users)
-      .set({ credits: newCreditsAmount })
+      .set({
+        credits: newCreditsAmount,
+      })
       .where(eq(Users.email, userEmail))
-      .returning({ updatedId: Users.id, newCredits: Users.credits });
+      .returning({
+        updatedId: Users.id,
+        newCredits: Users.credits,
+      });
 
     console.log("✅ Database update completed:", updateResult);
 
@@ -128,6 +143,7 @@ export async function POST(req: NextRequest) {
         userEmail,
         creditsAdded: creditsToAdd,
         newTotal: newCreditsAmount,
+        paymentId: pfData.pf_payment_id,
       },
     });
   } catch (error) {
