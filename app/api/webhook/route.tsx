@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "../../utils/db";
-
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
 import { Users } from "../../utils/schema";
@@ -63,15 +62,20 @@ function validateITNSignature(
   return calculatedSignature === receivedSignature;
 }
 
+export const config = {
+  runtime: "edge", // Use the Edge runtime for API routes
+  bodyParser: false, // Disable the built-in body parser for raw data
+};
+
 export async function POST(req: NextRequest) {
   console.log("🔵 PayFast Webhook Triggered");
 
   try {
-    // Parse the raw body
+    // Parse the raw body (this will return the body as a string)
     const rawBodyStr = await req.text();
     console.log("📥 Raw webhook payload:", rawBodyStr);
 
-    // Parse the form data
+    // Parse the form data from the raw body (assuming it's URL-encoded)
     const pfData = Object.fromEntries(new URLSearchParams(rawBodyStr));
     console.log("🔍 Parsed PayFast data:", pfData);
 
@@ -81,7 +85,7 @@ export async function POST(req: NextRequest) {
 
     if (!isValidSignature) {
       console.error("❌ Invalid signature received");
-      return NextResponse.json({ error: "Invalid signature" });
+      return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
     }
 
     // Verify payment status
@@ -103,7 +107,7 @@ export async function POST(req: NextRequest) {
 
     if (!userEmail || isNaN(creditsToAdd)) {
       console.error("❌ Invalid data received:", { userEmail, creditsToAdd });
-      return NextResponse.json({ error: "Invalid data" });
+      return NextResponse.json({ error: "Invalid data" }, { status: 400 });
     }
 
     // Fetch current user data
@@ -115,7 +119,7 @@ export async function POST(req: NextRequest) {
 
     if (users.length === 0) {
       console.error("❌ User not found in database:", userEmail);
-      return NextResponse.json({ error: "User not found" });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     const user = users[0];

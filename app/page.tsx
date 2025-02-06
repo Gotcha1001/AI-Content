@@ -18,7 +18,7 @@ export default function Home() {
             visible: { opacity: 1, x: 0 },
           }}
         >
-          <h1 className="text-4xl sm:text-6xl lg:text-8xl font-extrabold gradient-title pb-6 flex flex-col items-center">
+          <h1 className="text-4xl sm:text-6xl lg:text-8xl font-extrabold gradient-title pb-6 flex flex-col items-center  ">
             Your Place To Create <br /> Contents For Almost Anything...
             <span className="flex flex-col items-center justify-center gap-2 sm:gap-4 w-full mt-4">
               <span className="text-2xl sm:text-6xl">with</span>
@@ -41,7 +41,8 @@ export default function Home() {
                 />
               </MotionWrapperDelay>
               <span className="text-2xl sm:text-6xl -mt-2 mb-6">
-                Design Interiors AI
+                Almost Anthing A Human Needs With Life As Regaurds to Help And
+                Information NOW ... AI
               </span>
             </span>
           </h1>
@@ -49,7 +50,10 @@ export default function Home() {
 
         <p className="text-base sm:text-xl text-gray-300 mb-6 sm:mb-10 max-w-3xl mx-auto">
           Create Almost any content from AI's magic, write songs, lyrics, Chord
-          Progressions, What to eat, Business Plan Ideas, Diets, Counselling AI
+          Progressions, What to eat, Business Plan Ideas, Diets, Counselling AI,
+          Should I Get Divorced, Teacher lessons plans generator, Students
+          homework Helper, Court Case Arugments Generator, Health Symtpoms
+          Diagnosis, Deicision Maker, Business Plan Ideas and many many more....
           and many more'
         </p>
 
