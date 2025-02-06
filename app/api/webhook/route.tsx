@@ -4,7 +4,8 @@ import { eq } from "drizzle-orm";
 import crypto from "crypto";
 import { Users } from "../../utils/schema";
 
-// Keep the signature validation function unchanged
+export const runtime = "edge"; // Corrected for Next.js App Router
+
 function validateITNSignature(
   data: Record<string, string | undefined>,
   receivedSignature: string
@@ -62,55 +63,40 @@ function validateITNSignature(
   return calculatedSignature === receivedSignature;
 }
 
-export const config = {
-  runtime: "edge", // Use the Edge runtime for API routes
-  bodyParser: false, // Disable the built-in body parser for raw data
-};
-
 export async function POST(req: NextRequest) {
   console.log("🔵 PayFast Webhook Triggered");
 
   try {
-    // Parse the raw body (this will return the body as a string)
-    const rawBodyStr = await req.text();
+    const rawBodyStr = await req.text(); // Get raw request body
     console.log("📥 Raw webhook payload:", rawBodyStr);
 
-    // Parse the form data from the raw body (assuming it's URL-encoded)
     const pfData = Object.fromEntries(new URLSearchParams(rawBodyStr));
     console.log("🔍 Parsed PayFast data:", pfData);
 
-    // Validate the signature
     const isValidSignature = validateITNSignature(pfData, pfData.signature);
     console.log("✅ Signature validation result:", isValidSignature);
 
     if (!isValidSignature) {
       console.error("❌ Invalid signature received");
-      return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid signature" });
     }
 
-    // Verify payment status
     console.log("💰 Payment status:", pfData.payment_status);
     if (pfData.payment_status !== "COMPLETE") {
       console.log(`⚠️ Payment not complete: ${pfData.payment_status}`);
       return NextResponse.json({ message: "Payment not complete" });
     }
 
-    // Extract and validate user data
     const userEmail = pfData.custom_str1;
     const creditsToAdd = parseInt(pfData.custom_int1);
 
-    console.log("👤 Processing update for:", {
-      userEmail,
-      creditsToAdd,
-      paymentId: pfData.pf_payment_id,
-    });
+    console.log("👤 Processing update for:", { userEmail, creditsToAdd });
 
     if (!userEmail || isNaN(creditsToAdd)) {
       console.error("❌ Invalid data received:", { userEmail, creditsToAdd });
-      return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid data" });
     }
 
-    // Fetch current user data
     console.log("🔍 Fetching user data for:", userEmail);
     const users = await db
       .select()
@@ -119,25 +105,19 @@ export async function POST(req: NextRequest) {
 
     if (users.length === 0) {
       console.error("❌ User not found in database:", userEmail);
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json({ error: "User not found" });
     }
 
     const user = users[0];
     const currentCredits = user.credits ?? 0;
     const newCreditsAmount = currentCredits + creditsToAdd;
 
-    // Update user credits
     console.log("📝 Updating user credits in database...");
     const updateResult = await db
       .update(Users)
-      .set({
-        credits: newCreditsAmount,
-      })
+      .set({ credits: newCreditsAmount })
       .where(eq(Users.email, userEmail))
-      .returning({
-        updatedId: Users.id,
-        newCredits: Users.credits,
-      });
+      .returning({ updatedId: Users.id, newCredits: Users.credits });
 
     console.log("✅ Database update completed:", updateResult);
 
@@ -147,7 +127,6 @@ export async function POST(req: NextRequest) {
         userEmail,
         creditsAdded: creditsToAdd,
         newTotal: newCreditsAmount,
-        paymentId: pfData.pf_payment_id,
       },
     });
   } catch (error) {
