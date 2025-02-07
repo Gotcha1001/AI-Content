@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from "next/server"; // Adjusted import
 import crypto from "crypto";
 import { randomUUID } from "crypto";
@@ -18,7 +17,11 @@ export const POST = async (req) => {
   const paymentData = {
     merchant_id: process.env.PAYFAST_MERCHANT_ID,
     merchant_key: process.env.PAYFAST_MERCHANT_KEY,
-    return_url: `${process.env.NEXT_PUBLIC_URL}/payment-success`,
+    // return_url: `${process.env.NEXT_PUBLIC_URL}/payment-success`,
+    return_url: `${process.env.NEXT_PUBLIC_URL.replace(
+      /\/$/,
+      ""
+    )}/payment-success`,
     cancel_url: `${process.env.NEXT_PUBLIC_URL}/payment-cancel`,
     notify_url: `${process.env.NEXT_PUBLIC_URL}/api/webhook`,
     email_address: userEmail,
