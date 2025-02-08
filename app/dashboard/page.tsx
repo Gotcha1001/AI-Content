@@ -8,7 +8,6 @@ function Dashboard() {
 
   return (
     <div>
-      {/* <div className="animated-bg fixed -z-10 inset-0 opacity-90" /> */}
       {/* Search Section */}
       <SearchSection
         onSearchInput={(value: string) => setUserSearchInput(value)}
