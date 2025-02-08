@@ -37,7 +37,7 @@ export default function RootLayout({
     >
       <html lang="en">
         <body className={outfit.className}>
-          <div className="animated-bg fixed -z-10 inset-0 opacity-90" />
+          <div className="animated-bg fixed -z-10 inset-0 " />
           {children}
         </body>
       </html>

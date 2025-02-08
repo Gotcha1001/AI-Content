@@ -135,7 +135,7 @@ const History = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <div className="animated-bg fixed -z-10 inset-0 opacity-90" />
+      {/* <div className="animated-bg fixed -z-10 inset-0 opacity-90" /> */}
       <h1 className="text-4xl font-semibold mb-4 text-gray-100 gradient-title text-center">
         AI Content History
       </h1>

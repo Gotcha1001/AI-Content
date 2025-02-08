@@ -63,7 +63,7 @@ function Header() {
       }}
     >
       <div className="relative p-5 shadow-sm overflow-hidden gradient-background2 border border-indigo-400">
-        <div className="dynamic-bg absolute inset-0 -z-10"></div>
+        {/* <div className="dynamic-bg absolute inset-0 -z-10"></div> */}
 
         <div className="relative flex flex-wrap justify-between items-center gap-5">
           <Link href={"/"}>
@@ -129,10 +129,19 @@ function Header() {
 
           <div className="flex gap-7 items-center md:flex-row md:gap-4 md:static">
             <SignedIn>
-              <div className="flex gap-2 p-1 items-center bg-teal-600 px-6 rounded-full">
-                <Image src={"/coin.png"} alt="Tokens" width={30} height={30} />
-                <h2>{userDetail?.credits}</h2>
+              <div className="flex gap-2 p-1 items-center bg-teal-600 px-4 rounded-full w-[120px] sm:w-auto">
+                <Image
+                  src={"/coin.png"}
+                  alt="Tokens"
+                  width={24}
+                  height={24}
+                  className="w-6 h-6"
+                />
+                <h2 className="text-white text-sm sm:text-base">
+                  {userDetail?.credits}
+                </h2>
               </div>
+
               <Link href="/dashboard/billing">
                 <Button variant="sex1" className="w-full sm:w-auto md:ml-4">
                   Buy More Credits

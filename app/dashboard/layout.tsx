@@ -12,6 +12,7 @@ function Layout({ children }: { children: React.ReactNode }) {
     <Provider>
       {/* Wrap everything inside Provider */}
       <div className="h-screen">
+        {/* <div className="animated-bg fixed -z-10 inset-0 opacity-90" /> */}
         <div className="md:w-64 hidden md:block fixed">
           <SideNav />
         </div>
