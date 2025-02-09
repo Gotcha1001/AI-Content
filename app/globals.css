@@ -88,30 +88,22 @@ body {
 /* Animated background class */
 .animated-bg {
   background-image: url("/bg.jpg");
-  background-size: cover;
+  background-size: cover; /* Ensures the image always covers the full screen */
   background-position: center;
   background-repeat: no-repeat;
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   z-index: -10;
   opacity: 0.9;
+
   animation: shiftBackground 90s linear infinite,
-    zoomBackground 20s ease-in-out infinite;
+    zoomBackground 20s ease-in-out infinite alternate;
 }
 
-@media (min-width: 640px) {
-  .animated-bg {
-    background-size: 110% auto;
-    background-position: 0% 50%;
-    animation: shiftBackground 50s linear infinite,
-      zoomBackground 20s ease-in-out infinite;
-  }
-}
-
-/* Horizontal movement */
+/* Background Animation */
 @keyframes shiftBackground {
   0% {
     background-position: 0% 50%;
@@ -124,7 +116,7 @@ body {
   }
 }
 
-/* Zoom in and out effect */
+/* Zoom Animation */
 @keyframes zoomBackground {
   0%,
   100% {
@@ -132,6 +124,34 @@ body {
   }
   50% {
     transform: scale(1.1);
+  }
+}
+
+/* Handle Larger Screens (e.g., wider than 1280px) */
+@media (min-width: 1280px) {
+  .animated-bg {
+    background-size: 130% auto; /* Slightly larger to show more of the movement */
+    animation: shiftBackground 50s linear infinite,
+      /* Speed up movement on large screens */ zoomBackground 20s ease-in-out
+        infinite alternate;
+  }
+}
+
+/* Handle Mid-Range Screens (e.g., 768px to 1280px) */
+@media (min-width: 768px) and (max-width: 1280px) {
+  .animated-bg {
+    background-size: cover; /* Maintains full coverage */
+    animation: shiftBackground 70s linear infinite,
+      /* Slightly faster movement for mid-range */ zoomBackground 20s
+        ease-in-out infinite alternate;
+  }
+}
+
+/* Handle Smaller Screens */
+@media (max-width: 768px) {
+  .animated-bg {
+    background-size: cover; /* Ensures it still covers the full screen */
+    background-position: center;
   }
 }
 
