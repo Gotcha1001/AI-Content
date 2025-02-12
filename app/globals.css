@@ -5,25 +5,6 @@
 body {
   color: black;
   font-family: Arial, Helvetica, sans-serif;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
-  width: 100%; /* Ensure body width is 100% of the viewport */
-  margin: 0; /* Remove default margin that could cause overflow */
-}
-
-html,
-body {
-  box-sizing: border-box; /* Ensure padding and border don't cause overflow */
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: inherit; /* Inherit box-sizing from body */
-}
-
-img {
-  max-width: 100%; /* Prevent images from overflowing */
-  height: auto;
 }
 
 .gradient-title {
