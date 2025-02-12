@@ -95,10 +95,9 @@ body {
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh; /* Ensures the background covers even when the content is smaller */
   z-index: -10;
   opacity: 0.9;
-
   animation: shiftBackground 90s linear infinite,
     zoomBackground 20s ease-in-out infinite alternate;
 }
@@ -132,8 +131,7 @@ body {
   .animated-bg {
     background-size: 130% auto; /* Slightly larger to show more of the movement */
     animation: shiftBackground 50s linear infinite,
-      /* Speed up movement on large screens */ zoomBackground 20s ease-in-out
-        infinite alternate;
+      zoomBackground 20s ease-in-out infinite alternate;
   }
 }
 
@@ -142,8 +140,7 @@ body {
   .animated-bg {
     background-size: cover; /* Maintains full coverage */
     animation: shiftBackground 70s linear infinite,
-      /* Slightly faster movement for mid-range */ zoomBackground 20s
-        ease-in-out infinite alternate;
+      zoomBackground 20s ease-in-out infinite alternate;
   }
 }
 
@@ -152,6 +149,7 @@ body {
   .animated-bg {
     background-size: cover; /* Ensures it still covers the full screen */
     background-position: center;
+    min-height: 100vh; /* Ensures full screen coverage even on small screens */
   }
 }
 
